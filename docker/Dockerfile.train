@@ -1,0 +1,50 @@
+# ═══════════════════════════════════════════════════════════════
+# AtmosForge — Training Dockerfile
+# Supports CUDA for GPU training (RTX 4050 compatible)
+# ═══════════════════════════════════════════════════════════════
+
+ARG CUDA_VERSION=12.1.0
+ARG PYTHON_VERSION=3.10
+
+# ─── Base Stage ──────────────────────────────────────────────
+FROM nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu22.04 AS base
+
+ARG PYTHON_VERSION
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Install Python
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python${PYTHON_VERSION} \
+    python${PYTHON_VERSION}-venv \
+    python3-pip \
+    wget \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Python alias
+RUN ln -sf /usr/bin/python${PYTHON_VERSION} /usr/bin/python
+
+WORKDIR /app
+
+# ─── Dependencies ────────────────────────────────────────────
+COPY pyproject.toml .
+
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -e ".[dev]" || \
+    pip install --no-cache-dir -e .
+
+# ─── Application Code ───────────────────────────────────────
+COPY src/ ./src/
+COPY configs/ ./configs/
+COPY scripts/ ./scripts/
+COPY Makefile .
+
+# ─── Directories ────────────────────────────────────────────
+RUN mkdir -p data/raw data/processed results checkpoints mlruns logs
+
+# ─── Default Command ────────────────────────────────────────
+CMD ["python", "-m", "src.training.trainer", "model=lstm", "dataset=jena"]

@@ -1,0 +1,12 @@
+# TFT (Temporal Fusion Transformer) — Default Hyperparameters
+name: tft
+_target_: src.models.advanced.tft.TFTForecaster
+
+input_size: 14
+hidden_size: 128
+output_size: 1
+horizon: 24
+n_heads: 4
+n_layers: 2
+dropout: 0.1
+quantiles: [0.1, 0.5, 0.9]

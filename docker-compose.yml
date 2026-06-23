@@ -1,0 +1,100 @@
+# ═══════════════════════════════════════════════════════════════
+# AtmosForge — Docker Compose
+# Services: train, serve, mlflow
+# ═══════════════════════════════════════════════════════════════
+
+version: "3.9"
+
+services:
+  # ─── MLflow Tracking Server ────────────────────────────────
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.11.0
+    container_name: atmosforge-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlflow/mlruns
+      - ./mlartifacts:/mlflow/mlartifacts
+    command: >
+      mlflow server
+        --host 0.0.0.0
+        --port 5000
+        --backend-store-uri sqlite:///mlflow/mlruns/mlflow.db
+        --default-artifact-root /mlflow/mlartifacts
+    environment:
+      - MLFLOW_TRACKING_URI=http://0.0.0.0:5000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # ─── Training Service ─────────────────────────────────────
+  train:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.train
+      args:
+        CUDA_VERSION: "12.1"
+    container_name: atmosforge-train
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+      - ./mlruns:/app/mlruns
+      - ./configs:/app/configs
+      - ./results:/app/results
+      - ./checkpoints:/app/checkpoints
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - SEED=${SEED:-42}
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      python -m src.training.trainer
+        model=lstm
+        dataset=jena
+        training.forecast_horizon=24
+        seed=42
+
+  # ─── Inference Serving ─────────────────────────────────────
+  serve:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.serve
+    container_name: atmosforge-serve
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./mlruns:/app/mlruns
+      - ./mlartifacts:/app/mlartifacts
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - API_KEY=${API_KEY:-dev-key-change-me}
+      - CUDA_VISIBLE_DEVICES=""
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    command: >
+      uvicorn src.serving.api:app
+        --host 0.0.0.0
+        --port 8000
+        --workers 2
+
+volumes:
+  mlruns:
+  mlartifacts:

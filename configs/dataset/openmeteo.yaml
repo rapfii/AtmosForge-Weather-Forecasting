@@ -1,0 +1,38 @@
+# Open-Meteo Historical Weather API Configuration
+# Source: Open-Meteo (free, no API key required)
+# Supports any lat/lon worldwide, including Indonesia
+
+name: openmeteo
+data_dir: data
+target_column: "T_2m (°C)"
+
+# Location (default: Jakarta, Indonesia)
+latitude: -6.21
+longitude: 106.85
+start_date: "2020-01-01"
+end_date: "2024-12-31"
+
+# Variables to fetch (hourly)
+hourly_variables:
+  - temperature_2m
+  - relative_humidity_2m
+  - dew_point_2m
+  - precipitation
+  - surface_pressure
+  - wind_speed_10m
+  - wind_direction_10m
+  - shortwave_radiation
+  - cloud_cover
+  - soil_temperature_0_to_7cm
+
+# Window configuration
+input_window: 168
+forecast_horizon: 24
+
+# Split ratios (chronological)
+train_ratio: 0.70
+val_ratio: 0.15
+
+# DataLoader settings
+batch_size: 64
+num_workers: 4

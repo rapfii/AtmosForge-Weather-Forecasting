@@ -1,0 +1,48 @@
+# Training Configuration — Default
+# Applies to all models unless overridden
+
+# Optimizer
+optimizer: adam
+learning_rate: 0.001
+weight_decay: 0.00001
+
+# Scheduler (reduce_on_plateau | cosine | onecycle)
+scheduler: reduce_on_plateau
+scheduler_patience: 5
+scheduler_factor: 0.5
+cosine_t_max: 100
+cosine_eta_min: 0.000001
+
+# Training loop
+max_epochs: 100
+batch_size: 64
+forecast_horizon: 24
+
+# Regularization
+gradient_clip_norm: 1.0
+dropout: 0.1
+
+# Early stopping
+early_stopping_patience: 10
+early_stopping_min_delta: 0.000001
+
+# Mixed precision (auto-detect CUDA; RTX 4050 benefits greatly)
+use_amp: true
+
+# Checkpointing
+checkpoint_dir: checkpoints
+save_best_only: true
+
+# MLflow
+experiment_name: atmosforge
+mlflow_tracking_uri: ./mlruns
+
+# Reproducibility
+seed: 42
+
+# Device (auto-detect; will use RTX 4050 if available)
+device: auto
+
+# DataLoader
+num_workers: 4
+pin_memory: true

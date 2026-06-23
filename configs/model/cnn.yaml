@@ -1,0 +1,12 @@
+# CNN-1D (Dilated TCN) — Default Hyperparameters
+name: cnn
+_target_: src.models.baselines.cnn.CNN1DForecaster
+
+input_size: 14
+hidden_size: 64
+output_size: 1
+horizon: 24
+num_layers: 4
+kernel_size: 3
+dropout: 0.1
+quantiles: [0.1, 0.5, 0.9]

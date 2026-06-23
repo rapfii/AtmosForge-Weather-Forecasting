@@ -1,0 +1,86 @@
+# ═══════════════════════════════════════════════════════════════
+# AtmosForge — .gitignore
+# ═══════════════════════════════════════════════════════════════
+
+# ─── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ─── Virtual Environments ───────────────────────────────────
+.venv/
+venv/
+ENV/
+env/
+
+# ─── IDE ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# ─── Data (raw downloads — too large for git) ───────────────
+data/raw/
+data/processed/
+*.csv.gz
+*.nc
+*.grib
+
+# ─── Model Artifacts ────────────────────────────────────────
+mlruns/
+mlartifacts/
+checkpoints/
+*.pt
+*.pth
+*.ckpt
+
+# ─── Environment & Secrets ──────────────────────────────────
+.env
+.env.local
+.env.production
+
+# ─── Logs ────────────────────────────────────────────────────
+logs/
+*.log
+*.jsonl
+
+# ─── Testing ────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ─── Type Checking & Linting ────────────────────────────────
+.mypy_cache/
+.ruff_cache/
+
+# ─── Docker ──────────────────────────────────────────────────
+.docker/
+
+# ─── OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Jupyter ─────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ─── Cache ───────────────────────────────────────────────────
+.openmeteo_cache*
+.cache/
+
+# ─── Keep these tracked ─────────────────────────────────────
+# results/ — benchmark outputs (tracked)
+# configs/ — Hydra configs (tracked)
+# Data/ — reference data files
+!results/benchmark.csv
+!results/benchmark.md

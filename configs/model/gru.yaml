@@ -1,0 +1,12 @@
+# GRU — Default Hyperparameters
+name: gru
+_target_: src.models.baselines.gru.GRUForecaster
+
+input_size: 14
+hidden_size: 128
+output_size: 1
+horizon: 24
+num_layers: 2
+dropout: 0.1
+bidirectional: false
+quantiles: [0.1, 0.5, 0.9]

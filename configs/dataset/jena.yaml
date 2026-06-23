@@ -1,0 +1,26 @@
+# Jena Climate 2009-2016 Dataset Configuration
+# Source: Max Planck Institute for Biogeochemistry
+# ~420K observations, 14 atmospheric features, 10-minute intervals
+
+name: jena
+data_dir: data
+target_column: "T (degC)"
+
+# Window configuration
+input_window: 168     # 7 days at hourly resolution
+forecast_horizon: 24  # Configurable: 1, 6, 24, 72
+
+# Resampling (original is 10-min; set null to keep original)
+resample_freq: "1h"
+
+# Split ratios (chronological, NEVER random)
+train_ratio: 0.70
+val_ratio: 0.15
+# test_ratio: 0.15 (implicit)
+
+# DataLoader settings
+batch_size: 64
+num_workers: 4
+
+# Download URL (handled internally)
+url: "https://storage.googleapis.com/tensorflow/tf-keras-datasets/jena_climate_2009_2016.csv.gz"

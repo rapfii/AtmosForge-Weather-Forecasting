@@ -1,0 +1,15 @@
+# N-HiTS — Default Hyperparameters
+name: nhits
+_target_: src.models.advanced.nhits.NHiTSForecaster
+
+input_size: 14
+hidden_size: 256
+output_size: 1
+horizon: 24
+seq_len: 168
+n_blocks: 3
+n_stacks: 3
+pool_kernels: [1, 2, 4]
+freq_downsample: [1, 2, 4]
+dropout: 0.1
+quantiles: [0.1, 0.5, 0.9]
