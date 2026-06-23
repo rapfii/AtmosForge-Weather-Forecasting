@@ -307,5 +307,5 @@ Random seeds are managed centrally via `src/utils/seed.py` and propagated throug
 ---
 
 <div align="center">
-<sub>Built by <a href="https://github.com/rapfii">Raffi Khairan Hidayat</a> for the Open Meteorological AI community · Contributions welcome</sub>
+<sub>Built for the Open Meteorological AI community · Contributions welcome</sub>
 </div>
