@@ -22,7 +22,12 @@
 
 **AtmosForge** is a reproducible benchmarking framework for multivariate meteorological time-series forecasting, systematically evaluating six deep learning architectures — from LSTM and CNN-1D baselines to state-of-the-art Temporal Fusion Transformers (TFT), N-HiTS, and PatchTST — across three publicly available datasets and four forecast horizons (1h, 6h, 24h, 72h).
 
-Beyond accuracy comparisons, the framework integrates **uncertainty quantification** via conformal prediction, **feature attribution** via SHAP temporal importance analysis, and **statistical model selection** via the Diebold-Mariano test. The entire pipeline — from data ingestion to serving — is instrumented with MLflow and deployable via Docker.
+Beyond accuracy comparisons, the
+
+### 🌲 SHAP Temporal Feature Importance
+![Feature Importance](images/shap_temporal_importance.png)
+
+analysis, and **statistical model selection** via the Diebold-Mariano test. The entire pipeline — from data ingestion to serving — is instrumented with MLflow and deployable via Docker.
 
 ---
 
@@ -30,7 +35,12 @@ Beyond accuracy comparisons, the framework integrates **uncertainty quantificati
 
 - **Unified Benchmark** — Standardized evaluation of 6 architectures on 3 real-world datasets across 4 forecast horizons, with deterministic (MAE, RMSE, MAPE) and probabilistic metrics (CRPS, Pinball Loss)
 - **Rigorous Model Selection** — Diebold-Mariano statistical tests (p < 0.05) for pairwise comparison; no eyeballing results
-- **Full MLOps Instrumentation** — End-to-end pipeline: data ingestion → feature engineering → training → HPO via Optuna → evaluation → serving; every run tracked in MLflow
+- **Full MLOps Instrumentation**
+
+### 🔄 End-to-End MLOps Pipeline Architecture
+![Pipeline Architecture](images/pipeline_architecture.png)
+
+→ evaluation → serving; every run tracked in MLflow
 - **Uncertainty Quantification** — Quantile regression and Monte Carlo Dropout for prediction interval generation
 - **Interpretability Layer** — SHAP-based temporal feature importance for all model-dataset pairs
 - **Production Inference** — Async FastAPI REST endpoint with Pydantic validation, Dockerized and cloud-deployable
@@ -40,9 +50,10 @@ Beyond accuracy comparisons, the framework integrates **uncertainty quantificati
 
 ## 📊 Benchmark Results
 
-### Jena Climate Dataset — Temperature Forecasting
+### Jena Climate Dataset
 
-> 🔔 *Placeholder values below. Run `make reproduce SEED=42` to generate your results.*
+### 📊 Model Performance & Metrics Dashboard
+![Dashboard Preview](images/dashboard_preview.png)
 
 | Model | MAE ↓ | RMSE ↓ | MAPE ↓ | CRPS ↓ | DM vs Best | Train Time |
 |-------|--------|---------|---------|---------|------------|------------|
