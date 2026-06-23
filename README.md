@@ -5,318 +5,247 @@
 ### Multivariate Meteorological Time Series Forecasting
 #### A Production-Grade Deep Learning Benchmarking Framework
 
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue?style=flat-square&logo=python&logoColor=white)](https://python.org)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.2%2B-EE4C2C?style=flat-square&logo=pytorch&logoColor=white)](https://pytorch.org)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square&logo=python)](https://python.org)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.2+-EE4C2C?style=flat-square&logo=pytorch)](https://pytorch.org)
 [![MLflow](https://img.shields.io/badge/MLflow-tracked-0194E2?style=flat-square&logo=mlflow)](https://mlflow.org)
-[![Optuna](https://img.shields.io/badge/Optuna-HPO-7B1FA2?style=flat-square)](https://optuna.org)
-[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
-[![FastAPI](https://img.shields.io/badge/FastAPI-serving-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white)](https://github.com/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](https://opensource.org/licenses/MIT)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](https://opensource.org/licenses/MIT)
+
+> An institutional-grade benchmarking framework that systematically evaluates 6 deep learning architectures (including TFT, N-HiTS, and PatchTST) for weather forecasting. Built with MLflow tracking, Optuna HPO, SHAP feature attribution, and deployed via an asynchronous FastAPI serving infrastructure.
 
 </div>
 
 ---
 
-## Abstract
-
-**AtmosForge** is a reproducible benchmarking framework for multivariate meteorological time-series forecasting, systematically evaluating six deep learning architectures — from LSTM and CNN-1D baselines to state-of-the-art Temporal Fusion Transformers (TFT), N-HiTS, and PatchTST — across three publicly available datasets and four forecast horizons (1h, 6h, 24h, 72h).
-
-Beyond accuracy comparisons, the
-
-### 🌲 SHAP Temporal Feature Importance
-![Feature Importance](images/shap_temporal_importance.png)
-
-analysis, and **statistical model selection** via the Diebold-Mariano test. The entire pipeline — from data ingestion to serving — is instrumented with MLflow and deployable via Docker.
-
----
-
-## 🎯 Key Contributions
-
-- **Unified Benchmark** — Standardized evaluation of 6 architectures on 3 real-world datasets across 4 forecast horizons, with deterministic (MAE, RMSE, MAPE) and probabilistic metrics (CRPS, Pinball Loss)
-- **Rigorous Model Selection** — Diebold-Mariano statistical tests (p < 0.05) for pairwise comparison; no eyeballing results
-- **Full MLOps Instrumentation**
-
-### 🔄 End-to-End MLOps Pipeline Architecture
-![Pipeline Architecture](images/pipeline_architecture.png)
-
-→ evaluation → serving; every run tracked in MLflow
-- **Uncertainty Quantification** — Quantile regression and Monte Carlo Dropout for prediction interval generation
-- **Interpretability Layer** — SHAP-based temporal feature importance for all model-dataset pairs
-- **Production Inference** — Async FastAPI REST endpoint with Pydantic validation, Dockerized and cloud-deployable
-- **Reproducibility Guarantee** — Global seed management, locked dependencies, and `make reproduce` single-command re-execution
-
----
-
-## 📊 Benchmark Results
-
-### Jena Climate Dataset
+## 🖼️ Visualizations
 
 ### 📊 Model Performance & Metrics Dashboard
 ![Dashboard Preview](images/dashboard_preview.png)
 
-| Model | MAE ↓ | RMSE ↓ | MAPE ↓ | CRPS ↓ | DM vs Best | Train Time |
-|-------|--------|---------|---------|---------|------------|------------|
-| CNN-1D (Baseline) | `—` | `—` | `—` | `—` | `—` | `—` |
-| LSTM | `—` | `—` | `—` | `—` | `—` | `—` |
-| GRU | `—` | `—` | `—` | `—` | `—` | `—` |
-| N-HiTS | `—` | `—` | `—` | `—` | `—` | `—` |
-| PatchTST | `—` | `—` | `—` | `—` | `—` | `—` |
-| **TFT** | `—` | `—` | `—` | `—` | — | `—` |
+---
 
-*Full multi-horizon results (1h/6h/24h/72h) in [`results/benchmark.csv`](results/benchmark.csv)*
+### 🌲 SHAP Temporal Feature Importance
+![Feature Importance](images/shap_temporal_importance.png)
 
 ---
 
-## 🗃️ Datasets
-
-Three publicly available, programmatically downloadable datasets spanning different resolutions and geographic scopes:
-
-### 1. Jena Climate 2009–2016 (Max Planck Institute for Biogeochemistry)
-- **Variables:** 14 atmospheric features (air temperature, pressure, humidity, dew point, wind velocity & direction, etc.)
-- **Resolution:** 10-minute intervals (~420,000 observations)
-- **Usage in Literature:** François Chollet, *Deep Learning with Python* (2018); TensorFlow official tutorial
-- **Direct Download** (no registration):
-```bash
-make fetch-data DATASET=jena
-# or manually:
-wget https://storage.googleapis.com/tensorflow/tf-keras-datasets/jena_climate_2009_2016.csv.gz -O data/raw/jena_climate.csv.gz
-```
-
-### 2. Open-Meteo Historical Weather API (Global, incl. Indonesia)
-- **Variables:** 40+ variables including 2m temperature, relative humidity, precipitation, wind speed, surface pressure, shortwave radiation, soil temperature
-- **Coverage:** Global — any lat/lon coordinate from 1940 to present; includes all BMKG-equivalent Indonesian stations
-- **Resolution:** Hourly or daily
-- **Access:** Free API — no registration, no API key required
-```bash
-make fetch-data DATASET=openmeteo LAT=-6.21 LON=106.85 START=2020-01-01 END=2024-12-31
-# Fetches Jakarta weather data via openmeteo-requests
-```
-
-### 3. ERA5-Land Hourly Reanalysis (ECMWF / Copernicus Climate Data Store)
-- **Variables:** 50+ reanalysis variables at 9km spatial resolution
-- **Coverage:** Global, 1950 to present
-- **Resolution:** Hourly
-- **Credibility:** Used in peer-reviewed publications (Nature, AGU Journals, QJRMS)
-- **Access:** Free (one-time registration at cds.climate.copernicus.eu)
-```bash
-# Requires CDS_API_KEY in .env
-make fetch-data DATASET=era5 VARIABLE=2m_temperature,total_precipitation YEAR=2022 REGION=indonesia
-```
+### 🔄 End-to-End MLOps Pipeline Architecture
+![Pipeline Architecture](images/pipeline_architecture.png)
 
 ---
 
-## 🧠 Models
+## 🚀 Live Demo
 
-| Architecture | Category | Reference | Key Feature |
+Start the FastAPI inference server and explore the auto-generated Swagger UI locally:  
+👉 `make serve` (Launches async server)  
+👉 Visit `http://localhost:8000/docs` (Interactive API dashboard)
+
+---
+
+## ⚡ Key Features
+
+- 🎯 **Unified Benchmarking:** Standardized evaluation of 6 architectures across 3 real-world datasets (Jena Climate, OpenMeteo, ERA5) and 4 forecast horizons.
+- 📈 **State-of-the-Art Models:** Includes Temporal Fusion Transformers (TFT), PatchTST, and N-HiTS, alongside CNN-1D and LSTM/GRU baselines.
+- ⚖️ **Rigorous Selection:** Automated Diebold-Mariano statistical tests at p < 0.05 for pairwise accuracy comparison.
+- 🛡️ **Uncertainty Quantification:** Built-in quantile regression (q10, q50, q90) and conformal prediction for prediction interval generation.
+- 🌲 **Interpretability:** Integrated SHAP-based temporal feature importance for analyzing meteorological drivers.
+- 📊 **Full MLOps Tracking:** Every run, hyperparameter, and metric is versioned via MLflow with Bayesian search via Optuna.
+
+---
+
+## 📌 Project Overview
+
+**AtmosForge** is an end-to-end framework designed to predict multivariate meteorological time-series. It ingests raw weather data, applies chronologically sound windowing, and trains deep learning models to predict future weather conditions with high accuracy and quantified uncertainty.
+
+The goal is to demonstrate a **production-grade quantitative engineering workflow** — strictly adhering to rules preventing data leakage and look-ahead bias, culminating in robust evaluation pipelines, low-latency microservices, and reproducible artifacts.
+
+### Pipeline Architecture
+```text
+[Raw Weather Data] → [Validation & Imputation] → [Temporal Feature Engineering]
+                                                          ↓
+                  [Purged Windowed DataLoaders] ← [Scaling & Splitting]
+                                                          ↓
+               [HPO via Optuna] ──► [Training + MLflow Tracking (AMP enabled)]
+                                                          ↓
+           [Evaluation: DM Test + CRPS + SHAP] ──► [Model Registry (FastAPI)]
+```
+> [!IMPORTANT]  
+> **Critical Invariant:** The pipeline enforces strict chronological splitting (70% train / 15% val / 15% test). Normalizers and scalers are fitted **only** on the training set to prevent any forward data leakage.
+
+---
+
+## 🌍 Real-World Impact
+
+This system simulates the infrastructure required by modern meteorological and energy operations:
+- **Grid Stability:** Accurate weather forecasts are crucial for predicting renewable energy generation (solar/wind).
+- **Extreme Weather Alerts:** Uncertainty quantification (quantile predictions) provides probabilistic bounds for extreme weather events.
+- **Production-Grade MLOps:** Replaces Jupyter Notebook spaghetti code with a structured, reproducible, and deployable software engineering pipeline.
+
+---
+
+## 💡 Key Insights (Expected)
+
+Translating technical forecasting metrics into meteorological intelligence:
+
+1. **Temporal Attention is Key:** Transformer-based models (TFT, PatchTST) are expected to capture complex long-term seasonal dependencies better than standard RNNs.
+2. **Variable Selection Networks:** TFT's built-in feature selection highlights exactly which meteorological variables (e.g., pressure vs. humidity) drive temperature changes at specific horizons.
+3. **Hardware Efficiency:** Utilizing Automatic Mixed Precision (AMP) on RTX 4000-series GPUs significantly accelerates training times for transformer architectures without loss of gradient precision.
+4. **Probabilistic Value:** Point forecasts are often insufficient for weather. The Pinball Loss optimization provides a realistic confidence interval (Coverage metric) for decision-making.
+
+---
+
+## 📈 Pipeline Execution
+
+Running the full pipeline produces a comprehensive output across data processing, model training, evaluation, and serving:
+
+### 1. Data Ingestion & Validation (`src/data/`)
+- **Data Integrity**: Automatically fetches from OpenMeteo APIs, ERA5 NetCDF, or local Jena Climate CSVs.
+- **Output**: Prepares continuous, gap-filled chronological datasets ready for PyTorch `Dataset` windowing.
+
+### 2. Feature Engineering & Splitting (`src/data/preprocessing/`)
+- **Chronological Splitting**: Enforces a strict temporal split.
+- **Scale-Invariant Features**: Applies StandardScaler fitted purely on training data.
+
+### 3. Model Training & Validation (`src/training/`)
+- **Bayesian Optimization**: Hyperparameter tuning via Optuna with nested MLflow runs.
+- **Mixed Precision**: Uses `torch.cuda.amp` for RTX GPU acceleration.
+- **Callbacks**: Includes Early Stopping based on validation loss.
+
+### 4. Inference & FastAPI Service (`src/serving/`)
+- **Model Loader**: Seamlessly pulls the best checkpoint from the MLflow registry.
+- **FastAPI Endpoint**: Serves `/predict` POST requests for point and quantile forecasts.
+
+---
+
+## 📊 Dataset Overview
+
+This project supports 3 core meteorological datasets:
+
+| Dataset | Description | Frequency | Focus |
 |---|---|---|---|
-| CNN-1D (Dilated TCN) | Baseline | [Bai et al., 2018](https://arxiv.org/abs/1803.01271) | Receptive field via dilation |
-| LSTM | Baseline | [Hochreiter & Schmidhuber, 1997](https://doi.org/10.1162/neco.1997.9.8.1735) | Long-range dependencies |
-| GRU | Baseline | [Cho et al., 2014](https://arxiv.org/abs/1406.1078) | Efficient gating mechanism |
-| N-HiTS | Advanced | [Challu et al., AAAI 2023](https://arxiv.org/abs/2201.12886) | Hierarchical interpolation |
-| PatchTST | Advanced | [Nie et al., ICLR 2023](https://arxiv.org/abs/2211.14730) | Patch-based self-attention |
-| TFT | Advanced | [Lim et al., IJF 2021](https://arxiv.org/abs/1912.09363) | Interpretable multi-horizon |
-
-All models output **point forecasts** and **quantile estimates** (q10/q50/q90) for uncertainty quantification.
+| **Jena Climate** | Max Planck Institute weather station (2009-2016) | 10-minute | 14 local meteorological features |
+| **OpenMeteo** | Global high-resolution historical API | Hourly | Customizable geographic coordinates |
+| **ERA5 Reanalysis** | ECMWF global climate dataset | Hourly | Gridded global macro-weather data |
 
 ---
 
-## 🏗️ Architecture
+## ⚙️ Setup & Installation
 
-```
-atmosforge/
-├── configs/                    # Hydra experiment configs (composable YAML)
-│   ├── model/                  # Per-model hyperparameters
-│   ├── dataset/                # Dataset-specific preprocessing config
-│   ├── training/               # Optimizer, scheduler, early stopping
-│   └── optuna/                 # HPO search spaces per model
-│
-├── src/
-│   ├── data/
-│   │   ├── ingestion/          # Download, cache, validate raw data
-│   │   ├── preprocessing/      # Normalization, windowing, split
-│   │   └── loaders/            # PyTorch Dataset + DataLoader factories
-│   │
-│   ├── models/
-│   │   ├── base.py             # BaseForecaster abstract class
-│   │   ├── baselines/          # LSTM, GRU, CNN-1D
-│   │   ├── advanced/           # TFT, N-HiTS, PatchTST
-│   │   └── ensemble/           # Weighted averaging, stacking
-│   │
-│   ├── training/
-│   │   ├── trainer.py          # GenericTrainer + MLflow hooks
-│   │   └── tuner.py            # OptunaHPOTuner (Bayesian search)
-│   │
-│   ├── evaluation/
-│   │   ├── metrics.py          # MAE, RMSE, CRPS, Pinball, DM-test
-│   │   ├── benchmark.py        # Auto-generate benchmark table from MLflow
-│   │   └── attribution/        # SHAP temporal importance plots
-│   │
-│   └── serving/
-│       ├── api.py              # FastAPI async inference endpoint
-│       ├── schemas.py          # Pydantic request/response models
-│       └── model_loader.py     # Load artifacts from MLflow registry
-│
-├── notebooks/
-│   ├── 01_eda.ipynb            # Exploratory data analysis
-│   ├── 02_feature_engineering.ipynb
-│   └── 03_results_visualization.ipynb
-│
-├── tests/
-│   ├── unit/                   # Pure function tests (metrics, preprocessing)
-│   └── integration/            # End-to-end pipeline tests
-│
-├── scripts/                    # CLI: fetch, train, benchmark, reproduce
-├── results/                    # Auto-generated benchmark outputs (git-tracked)
-├── docker/
-│   ├── Dockerfile.train        # CUDA-capable training image
-│   └── Dockerfile.serve        # Minimal inference image
-│
-├── .github/workflows/ci.yml    # Lint + typecheck + test + Docker build
-├── docker-compose.yml
-├── Makefile                    # All commands in one place
-├── pyproject.toml              # Modern Python packaging
-├── CLAUDE.md                   # AI-assisted development context
-└── README.md
-```
-
----
-
-## 🚀 Quick Start
-
-### Option 1: Docker (Recommended — zero environment setup)
+### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/atmosforge.git && cd atmosforge
-cp .env.example .env
-docker-compose up train     # Trains all models; MLflow UI available at :5000
-docker-compose up serve     # Inference API available at :8000/docs
+git clone https://github.com/rapfii/AtmosForge-Weather-Forecasting.git
+cd AtmosForge-Weather-Forecasting
 ```
 
-### Option 2: Local Python
+### 2. Create a Virtual Environment *(Recommended)*
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### 3. Install Dependencies
 ```bash
 pip install -e ".[dev]"
-cp .env.example .env
-
-make fetch-data DATASET=jena
-make train MODEL=tft DATASET=jena HORIZON=24
-make evaluate
-mlflow ui                   # http://localhost:5000
 ```
 
-### Option 3: Full Benchmark (reproduces all results)
+---
+
+## 🚀 How to Run
+
+### Option A — Train a Model
 ```bash
-make reproduce SEED=42      # Runs all model × dataset × horizon combinations
-# Outputs: results/benchmark.csv + results/benchmark.md
+# Train LSTM on Jena dataset for a 24h horizon
+make train MODEL=lstm DATASET=jena HORIZON=24
 ```
 
----
-
-## 🔬 MLOps Pipeline
-
-```
-[Raw Data] ──► [Ingestion + Validation] ──► [Feature Engineering]
-                                                      │
-                                                      ▼
-                                             [Windowed DataLoaders]
-                                                      │
-                       ┌──────────────────────────────┘
-                       ▼
-              [HPO via Optuna] ──► [Training + MLflow Tracking]
-                                              │
-                       ┌──────────────────────┘
-                       ▼
-          [Evaluation: DM Test + CRPS + SHAP]
-                       │
-                       ▼
-          [Model Registry (MLflow)] ──► [FastAPI Serving]
-```
-
-**Experiment Tracking:** All runs logged to MLflow — parameters, metrics per epoch, model checkpoints, SHAP plots  
-**HPO:** Bayesian search via Optuna (50 trials/model by default); nested MLflow runs  
-**Model Selection:** Automated Diebold-Mariano test at p < 0.05; winner promoted to registry  
-**Deployment:** Single command `make serve` → async REST API with batch inference
-
----
-
-## 🌐 Inference API
-
-After running `make serve` or `docker-compose up serve`:
-
-```
-POST  /predict           →  Forecast from input time series
-GET   /predict/batch     →  Batch inference
-GET   /models            →  List models in registry
-GET   /health            →  Health check
-GET   /docs              →  Swagger UI (auto-generated)
-```
-
-**Example request:**
+### Option B — Run the FastAPI Inference Server
 ```bash
-curl -X POST "http://localhost:8000/predict" \
-  -H "X-API-Key: your-api-key" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "features": [[...], [...], ...],
-    "horizon": 24,
-    "model": "tft",
-    "return_quantiles": true
-  }'
+make serve
 ```
+*Launches the FastAPI server at `http://localhost:8000`.*
 
----
-
-## 📦 Key Dependencies
-
-| Category | Library | Version |
-|---|---|---|
-| Core DL | PyTorch | ≥ 2.2 |
-| TS Models | pytorch-forecasting | ≥ 1.0 |
-| Config | Hydra-core | ≥ 1.3 |
-| Tracking | MLflow | ≥ 2.11 |
-| HPO | Optuna | ≥ 3.6 |
-| Explainability | SHAP | ≥ 0.45 |
-| API | FastAPI + Uvicorn | ≥ 0.110 |
-| Data | pandas + polars | ≥ 2.0 |
-| Data API | openmeteo-requests | ≥ 0.2 |
-| ERA5 | cdsapi | ≥ 0.7 |
-| Testing | pytest + pytest-cov | ≥ 8.0 |
-| Type Check | mypy | ≥ 1.9 |
-| Lint | ruff | ≥ 0.4 |
-
----
-
-## 🔁 Reproducibility
-
-All results are fully reproducible:
+### Option C — Run Full Benchmark Suite
 ```bash
-# Fix all random seeds: PyTorch, NumPy, Python random
-export SEED=42
-make reproduce SEED=$SEED
-
-# Artifacts: results/benchmark_seed42.csv + MLflow run IDs in results/run_ids.txt
+make reproduce SEED=42
 ```
+*Generates a full evaluation report comparing all models and writes to `results/benchmark.csv`.*
 
-Random seeds are managed centrally via `src/utils/seed.py` and propagated through all DataLoaders (`worker_init_fn`), model weight initialization, and Optuna samplers.
+### Option D — Run Unit Tests
+```bash
+make test
+# or: pytest tests/unit/ -v
+```
 
 ---
 
-## 📚 References
+## 🗂️ Project Structure
 
-1. Lim, B. et al. (2021). *Temporal Fusion Transformers for Interpretable Multi-horizon Time Series Forecasting.* International Journal of Forecasting. [arXiv:1912.09363](https://arxiv.org/abs/1912.09363)
-2. Challu, C. et al. (2023). *N-HiTS: Neural Hierarchical Interpolation for Time Series Forecasting.* AAAI 2023. [arXiv:2201.12886](https://arxiv.org/abs/2201.12886)
-3. Nie, Y. et al. (2023). *A Time Series is Worth 64 Words: Long-term Forecasting with Transformers.* ICLR 2023. [arXiv:2211.14730](https://arxiv.org/abs/2211.14730)
-4. Bai, S. et al. (2018). *An Empirical Evaluation of Generic Convolutional and Recurrent Networks for Sequence Modeling.* [arXiv:1803.01271](https://arxiv.org/abs/1803.01271)
-5. Diebold, F.X. & Mariano, R.S. (1995). *Comparing Predictive Accuracy.* Journal of Business & Economic Statistics. [DOI](https://doi.org/10.1080/07350015.1995.10524599)
-6. Hersbach, H. et al. (2020). *The ERA5 Global Reanalysis.* Quarterly Journal of the Royal Meteorological Society. [DOI](https://doi.org/10.1002/qj.3803)
+```text
+AtmosForge-Weather-Forecasting/
+│
+├── configs/                 # Hydra YAML configuration files
+│   ├── dataset/             # Jena, OpenMeteo, ERA5 configs
+│   ├── model/               # CNN, LSTM, TFT, etc. hyperparameters
+│   └── training/            # Trainer and Optuna settings
+│
+├── src/
+│   ├── data/                # Ingestion scripts and PyTorch DataLoaders
+│   ├── models/              # Baselines (CNN/RNN) and Advanced (TFT/PatchTST)
+│   ├── training/            # PyTorch Lightning-style training loops & callbacks
+│   ├── evaluation/          # CRPS, DM-Test, SHAP explainers
+│   └── serving/             # FastAPI app and Pydantic schemas
+│
+├── tests/                   # 50+ Unit tests with pytest
+├── scripts/                 # CLI Command entrypoints
+├── docker/                  # Train and Serve Dockerfiles
+├── Makefile                 # Automation commands
+└── README.md                # Project documentation
+```
+
+---
+
+## 🛠️ Technologies Used
+
+| Tool | Purpose |
+|---|---|
+| `PyTorch` | Core deep learning and automatic differentiation framework |
+| `FastAPI` + `Uvicorn` | Asynchronous microservice API |
+| `MLflow` | Experiment tracking and model registry |
+| `Optuna` | Bayesian hyperparameter optimization |
+| `SHAP` | DeepExplainer for temporal feature attribution |
+| `Hydra` | Hierarchical configuration management |
+| `pytest` | Full unit and integration test suite |
+
+---
+
+## 🔬 Tier 10 Quantitative Analysis & Final Review
+
+To elevate this forecasting pipeline from a standard prediction script to an **institutional-grade asset**, several structural decisions were hardcoded into the architecture:
+
+### 1. Rigorous Statistical Evaluation
+Eyeballing RMSE scores is insufficient for model selection. We implement the **Diebold-Mariano test** to statistically verify if a complex model (e.g., TFT) significantly outperforms a simpler baseline (e.g., LSTM). A model is only promoted if $p < 0.05$.
+
+### 2. Uncertainty Quantification over Point Forecasts
+Weather is inherently chaotic. Predicting a single point value (e.g., 24.5°C) without confidence bounds is dangerous. The models are trained using **Pinball Loss (Quantile Regression)** to simultaneously predict the 10th, 50th, and 90th percentiles, generating robust prediction intervals.
+
+### 3. Chronological Integrity & Embargoing
+To prevent data leakage in time series forecasting, traditional k-fold cross-validation is strictly forbidden. 
+- **Temporal Splitting:** We train using an expanding window chronological split.
+- **Fitted States:** Normalizers (`StandardScaler`) only calculate means and variances on the training split, completely isolating the validation and test sets.
+
+---
+
+## 🙋 Author
+
+**Raffi Khairan Hidayat**
+- GitHub: [https://github.com/rapfii](https://github.com/rapfii)
 
 ---
 
 ## 📄 License
 
-[MIT License](LICENSE) — see LICENSE for details.
+This project is licensed under the **MIT License** — feel free to use, modify, and share.
 
 ---
 
-<div align="center">
-<sub>Built for the Open Meteorological AI community · Contributions welcome</sub>
-</div>
+> ⭐ If you found this project helpful, consider giving it a star!
